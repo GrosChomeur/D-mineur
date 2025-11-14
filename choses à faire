@@ -1,6 +1,0 @@
-    1) modifier create(start)
-
-conditions de placement de bombe :
-- si pas sur une case avec une bombe (if bob[cellY][cellX][1] != -1
-- si pas sur les cases adjacentes à la case de départ si x, y = start[0], start[1]
-(cellX < x-1 ou cellX > x+1) ou (cellY < y-1 ou cellY > y+1)
