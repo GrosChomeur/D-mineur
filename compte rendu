@@ -1,0 +1,30 @@
+(note : on retirera éventuellement les titres plus tard)
+
+
+Projet Tableaux 2D : Démineur
+
+membres du groupe : Marcel HOUDAILLE(c'est comme ça que ça s'écrit ton nom de famille ?), Camille HARLICOT
+
+OBJECTIF :
+L'objectif du projet est de coder le jeu du démineur (minesweeper en anglais).
+
+CARNET DE BORD : 
+
+1ère séance : D'abord nous avons réfléchi au différente fonctions dont nous aurions besoin :
+- (liste des fonctions qu'on avait établi au départ)
+Puis à tour de rôle nous avons d'un côté a pris en main TKinter, découvrant les fonctionnalité et construisant une grille
+au dimension standards ; de l'autre côté 
+
+2ème séance : Le projet à continuer cette fois nos rôle plus défini, Marcel s'occupait de l'interface à l'aide de TKinter,
+et Camille des fonctions concernant la matrices de jeux.
+
+3ème séance : Continuité du projet dans les rôles défini, et tentative de réunion des deux côté du projet pour commencer la phase de test.
+
+  
+REPARTITION DU TRAVAIL : 
+
+CHOIX D'EXTENSION : 
+
+CHOIX D'ERGONOMIE ET DE DESIGN : 
+
+CHOIX D'IMPLEMENTATION :
