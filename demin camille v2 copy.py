@@ -78,7 +78,7 @@ def compute_cell_size():
     screen_h = fen.winfo_screenheight()
 
     # min and max cell size to avoid too small or too big cells
-    min_size = 50
+    min_size = 40
     max_size = 100
 
     # available area for the canva (not more than a third of the screen)
@@ -582,6 +582,7 @@ can.bind("<Return>", ms.set_colors)
 draw() #first start of the game
 
 fen.mainloop()
+
 
 
 
