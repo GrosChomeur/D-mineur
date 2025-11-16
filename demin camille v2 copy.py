@@ -448,7 +448,7 @@ def win():
     can.unbind("<Button-1>") # unbind all keys to avoid further interaction
     can.unbind("<Button-3>")
     can.delete("all")
-    can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="You Win :)", font=('Arial', ms.size, 'bold'), fill=ms.textcolor, tags="endtext") # print win text
+    can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="You Win :)", font=('Arial', ms.size // (3-ms.difficulty) + 10, 'bold'), fill=ms.textcolor, tags="endtext") # print win text
 
 def lose(frame=1):
     """animation on losing"""
@@ -462,7 +462,7 @@ def lose(frame=1):
         can.unbind("<Button-3>")
         can.delete("all")
         if ms.bomb < ms.init_bomb // 3 :
-            can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="Oh no, close but you might want to win at least once. Am I right ?", font=('Arial', ms.size, 'bold'), fill=ms.textcolor, tags="endtext") # print lose text
+            can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="Oh no, close but you might want to win at least once. Am I right ?", font=('Arial', ms.size // (3-ms.difficulty) + 10, 'bold'), fill=ms.textcolor, tags="endtext") # print lose text
         else:
             can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="You are quite bad try again", font=('Arial', ms.size // (3-ms.difficulty) + 10, 'bold'), fill=ms.textcolor, tags="endtext") # print lose text
 
