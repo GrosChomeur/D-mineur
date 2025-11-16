@@ -49,6 +49,12 @@ class GameState: # we use a class to make cleaner variable management
     ["", "", "", "", "", "", "", "", "", ""],  # row 9
         ]
 
+        print(f'Switched to theme {self.theme}')
+              
+    def change_theme(self,*args):
+        self.set_colors()
+        draw()
+
 
 ms = GameState() # creation of our class object
 ms.set_colors()
@@ -453,10 +459,9 @@ def win():
 def lose(frame=1):
     """animation on losing"""
     if frame < 12:
-            ms.set_colors()  # alternate theme for flashing effect
-            draw()
-            can.delete("bomb") # redraw the grid
-            fen.after(240 - frame*16, lambda : lose(frame + 1)) # call recursively after a delay
+        ms.change_theme() # alternate theme to create flashing effect
+        can.delete("bomb") # let the user see where the bombs were
+        fen.after(240 - frame*16, lambda : lose(frame + 1)) # call recursively after a delay
     else: 
         can.unbind("<Button-1>") # unbind all keys to avoid further interaction
         can.unbind("<Button-3>")
@@ -470,15 +475,21 @@ def content():
     """draw the content of the board according to bob array with [(flagged or hidden or dug), number of bombs around]"""
     for h in range(ms.height):
         for w in range(ms.width):
+
             if ms.bob[h][w][0]==-1: # flagged cell
                 draw_table(ms.flag_colors, w * ms.size, h * ms.size)
+
             elif ms.bob[h][w][0]==0: # hidden cell
+
                 if ms.bob[h][w][1]==-1: # bomb hidden cell
                     draw_table(bomb_color, w * ms.size, h * ms.size)
                     can.create_rectangle(w * ms.size, h * ms.size, (w+1) * ms.size, (h+1) * ms.size, fill=ms.hidden, activefill=ms.active, tags="bomb")
+
                 else: # normal hidden cell
                     can.create_rectangle(w * ms.size, h * ms.size, (w+1) * ms.size, (h+1) * ms.size, fill=ms.hidden, activefill=ms.active, tags="cell")
+
             else: # dug cell (=1)
+                can.create_rectangle(w * ms.size, h * ms.size, (w+1) * ms.size, (h+1) * ms.size, fill=ms.fill, tags="cell")
                 can.create_text(((w+0.5) * ms.size, (h+0.5) * ms.size), text=str(ms.bob[h][w][1]), font=('Arial', ms.size//2 - 5, 'bold'), fill=color_nber(ms.bob[h][w][1]), tags="number")
     can.tag_raise("grid")
 
@@ -546,7 +557,6 @@ def restart():
     can.unbind("<Button-3>")
     can.bind("<Button-1>", first_dig) # rebinding the keys to restart the binding of first dig
     can.delete("all")
-    #ms.set_colors(ms.theme + 1)
     bomb_var.set(0)
     ms.bob = [[[0, 0] for j in range(ms.width)] for i in range(ms.height)]
     # init of the new board and other variables
@@ -559,15 +569,25 @@ restart_button = Button(sidebar, text="Restart", bg="#78A054", fg="white", font=
                         command=restart, bd=6)
 restart_button.pack(pady=20, padx=8, fill="x")
 
+# Theme button
+theme_button = Button(sidebar, text="Change theme", bg="#78A054", fg="white", font=("Arial", 11, "bold"), 
+                        command=ms.change_theme, bd=6)
+theme_button.pack(pady=5, padx=8, fill="x")
+
 # Difficulty button
 difficulty_button = Button(sidebar, text="Difficulty", bg="#78A054", fg="white", font=("Arial", 11, "bold"), 
                         command=choose_difficulty, bd=6)
-difficulty_button.pack(pady=20, padx=8, fill="x")
+difficulty_button.pack(pady=40, padx=8, fill="x")
 
 # Difficulty label
 diff_name = StringVar(value="Beginner") # Dynamic variable to print current difficulty
 diff_label = Label(sidebar, textvariable=diff_name, bg="#181F1C", fg="white", font=("Arial", 16, "bold"))
 diff_label.pack()
+
+# Tutorial label
+tuto_label = Label(sidebar, text="""Left click : dig
+Right click : flag""", bg="#181F1C", fg="white", font=("Arial", 12))
+tuto_label.pack(pady=50)
 
 
         
@@ -576,8 +596,7 @@ can = Canvas(main_frame, width=ms.width * ms.size, height=ms.height * ms.size, b
 can.pack(side="left", fill="both", expand=True)
 
 can.bind("<Button-1>", first_dig)
-#can.bind("<Button-3>", put_flag)
-can.bind("<Return>", ms.set_colors)
+can.bind("<Button-2>", ms.change_theme) # debug key to change theme : scroll wheel click
 
 draw() #first start of the game
 
