@@ -508,12 +508,16 @@ def lines():
         can.create_line(0, y, ms.width * ms.size, y, fill=ms.border, width=ms.size//5, tags=("grid",))
 
 
-def draw():
+def draw(*event):
     """draw the entire board including lines and content of the cells"""
     can.delete("all")
     content()
     lines()
         
+def cheat(*event):
+    """cheat function to reveal the bomb map for debug purposes only"""
+    can.delete("bomb")
+    print("cheat activated")
 
 
 
@@ -596,7 +600,9 @@ can = Canvas(main_frame, width=ms.width * ms.size, height=ms.height * ms.size, b
 can.pack(side="left", fill="both", expand=True)
 
 can.bind("<Button-1>", first_dig)
-can.bind("<Button-2>", ms.change_theme) # debug key to change theme : scroll wheel click
+can.bind("<Button-3>", ms.change_theme) # debug key to change theme : scroll wheel click
+can.bind("<Button-2>", cheat)
+can.bind("<ButtonRelease-2>", draw)
 
 draw() #first start of the game
 
