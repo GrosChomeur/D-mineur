@@ -4,7 +4,7 @@ from random import randint
 
 
 class GameState: # we use a class to make cleaner variable management
-    def __init__(self, width=9, height=9, init_bomb=10, size=60, theme=randint(0,1), difficulty=0):
+    def __init__(self, width=9, height=9, init_bomb=10, size=200, theme=randint(0,1), difficulty=0):
         self.width = width
         self.height = height
         self.init_bomb = init_bomb
@@ -19,9 +19,9 @@ class GameState: # we use a class to make cleaner variable management
         # different themes color palettes
         self.color_board = {
             1: {"hiddenfill": "#99809C", "activefill": "#78A054", "fill": "#D4878D",
-                "textcolor": "blue", "border": "#FFD9DA", "handle": "#4f4f4f", "flag": "crimson"},
+                "textcolor": "darkred", "border": "#FFD9DA", "handle": "#4f4f4f", "flag": "crimson"},
             2: {"hiddenfill": "#773344", "activefill": "#FF9F1C", "fill": "#F4CAE0",
-                "textcolor": "green", "border": "#230903", "handle": "#F1E9DB", "flag": "#7EC4CF"}
+                "textcolor": "#626430", "border": "#230903", "handle": "#F1E9DB", "flag": "#7EC4CF"}
         }
         
         self.set_colors()
@@ -78,7 +78,7 @@ def compute_cell_size():
     screen_h = fen.winfo_screenheight()
 
     # min and max cell size to avoid too small or too big cells
-    min_size = 40
+    min_size = 50
     max_size = 100
 
     # available area for the canva (not more than a third of the screen)
@@ -95,22 +95,25 @@ def compute_cell_size():
 def choose_difficulty():
     """change the difficulty of the game when the button is pressed and restart the game"""
     # case to determine difficulty
-    diff_var.set((ms.difficulty+1)%3)
-    ms.difficulty=(ms.difficulty+1)%3
+    ms.difficulty = (ms.difficulty+1)%3 # cycle through difficulties
 
     if ms.difficulty==0: # beginner
         ms.height, ms.width, ms.init_bomb = 9,9,10
+        diff_name.set("Beginner")
     elif ms.difficulty==1: # intermediate
         ms.height, ms.width, ms.init_bomb = 16,16,40
+        diff_name.set("Intermediate")
     elif ms.difficulty==2: # expert
         ms.height, ms.width, ms.init_bomb = 16,30,90
+        diff_name.set("Expert")
 
-    print(f'{diff_var=}')
+    print(f'{diff_name =}')
     print(f'{ms.height=}')
     print(f'{ms.width=}')
     print(f'{ms.init_bomb=}')
 
     compute_cell_size()
+    print(f'{ms.size=}')
     restart()
 
 
@@ -234,7 +237,7 @@ def put_flag(event):
     """put_flag() is called when the user right-clicks, it determine the cell clicked.
     It draws a flag on the cell if the cell is hidden, or removes the flag if it is already dug.
 
-    param event : mouse event"""
+    param event : mouse event, right click"""
 
     # determine the cell clicked
     (cellX, cellY) = event.x // ms.size, event.y // ms.size
@@ -361,7 +364,7 @@ def dig(cellX, cellY):
     param cellY : y coordinate of the cell
     """
     can.create_rectangle(cellX* ms.size, cellY* ms.size, (cellX+1)* ms.size, (cellY+1)* ms.size, fill=ms.fill, tags="cell")
-    can.create_text(((cellX+0.5)* ms.size, (cellY+0.5)* ms.size), text=str(ms.bob[cellY][cellX][1]), font=('Arial', 16, 'bold'), fill=color_nber(ms.bob[cellY][cellX][1]), tags="cell")
+    can.create_text(((cellX+0.5)* ms.size, (cellY+0.5)* ms.size), text=str(ms.bob[cellY][cellX][1]), font=('Arial', ms.size//2 - 5, 'bold'), fill=color_nber(ms.bob[cellY][cellX][1]), tags="cell")
     ms.bob[cellY][cellX][0]=1 # 1 stands for dug cell
     can.tag_raise("grid")
 
@@ -372,28 +375,27 @@ def first_dig(event):
     It ensure that the first cell dug cell is not a bomb as well as the adjacent cells.
     It also initialise the bomb map and bind the keys to the verif_dig and put_flag functions.
 
-    param event : mouse event
+    param event : mouse event, left click
     """
     cellX, cellY = event.x // ms.size, event.y // ms.size
     ms.bomb=ms.init_bomb
     bomb_var.set(ms.bomb)
     print("first dig")
-    can.unbind_all("<Button-1>")
+    can.unbind("<Button-1>")
     can.bind("<Button-1>", verif_dig)
     can.bind("<Button-3>", put_flag)
     create([cellX, cellY])
-    for y in range(max(0, cellY - 1), min(ms.height, cellY + 2)):
-        for x in range(max(0, cellX - 1), min(ms.width, cellX + 2)):
-            dig(x, y)
+    dig(cellX, cellY)
+    adjacent_zero(cellY, cellX)
 
     can.tag_raise("number")
 
-    nb_bomb = 0
+    nb_bomb = 0 # debug of the number of bombs placed
     for h in range(ms.height):
         for w in range(ms.width):
             if ms.bob[h][w][1]==-1:
                 nb_bomb+=1
-    print(f'number of bombs : {nb_bomb}')
+    assert nb_bomb == ms.init_bomb, f'Wrong number of bombs : {nb_bomb}'
     
 
 
@@ -422,8 +424,6 @@ def verif_dig(event):
         if ms.bob[cellY][cellX][1]==0 : # dig all adjacent cells
             adjacent_zero(cellY, cellX)
             
-                        
-
     can.tag_raise("grid")
 
 
@@ -445,24 +445,26 @@ def verif_win():
 
 def win():
     """animation on winning"""
-    can.unbind_all("<Button-1>") # unbind all keys to avoid further interaction
-    can.unbind_all("<Button-3>")
+    can.unbind("<Button-1>") # unbind all keys to avoid further interaction
+    can.unbind("<Button-3>")
     can.delete("all")
-    can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="you win", font=('Arial', 30, 'bold'), tags="endtext") # print win text
+    can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="You Win :)", font=('Arial', ms.size, 'bold'), fill=ms.textcolor, tags="endtext") # print win text
 
-def lose(frame=0):
+def lose(frame=1):
     """animation on losing"""
-    if frame < 15:
-            ms.set_colors()  # alternate colors frame % 2 + 1
+    if frame < 12:
+            ms.set_colors()  # alternate theme for flashing effect
             draw()
             can.delete("bomb") # redraw the grid
-            fen.after(250 - frame*15, lambda : lose(frame + 1)) # call recursively after a delay
-    else:
-        can.unbind_all("<Button-1>") # unbind all keys to avoid further interaction
-        can.unbind_all("<Button-3>")
+            fen.after(240 - frame*16, lambda : lose(frame + 1)) # call recursively after a delay
+    else: 
+        can.unbind("<Button-1>") # unbind all keys to avoid further interaction
+        can.unbind("<Button-3>")
         can.delete("all")
-        can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="you are so bad u loser", font=('Arial', 30, 'bold'), tags="endtext") # print lose text
-
+        if ms.bomb < ms.init_bomb // 3 :
+            can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="Oh no, close but you might want to win at least once. Am I right ?", font=('Arial', ms.size, 'bold'), fill=ms.textcolor, tags="endtext") # print lose text
+        else:
+            can.create_text(ms.width/2 * ms.size, ms.height/2 * ms.size, text="You are quite bad try again", font=('Arial', ms.size // (3-ms.difficulty) + 10, 'bold'), fill=ms.textcolor, tags="endtext") # print lose text
 
 def content():
     """draw the content of the board according to bob array with [(flagged or hidden or dug), number of bombs around]"""
@@ -477,13 +479,12 @@ def content():
                 else: # normal hidden cell
                     can.create_rectangle(w * ms.size, h * ms.size, (w+1) * ms.size, (h+1) * ms.size, fill=ms.hidden, activefill=ms.active, tags="cell")
             else: # dug cell (=1)
-                can.create_text(((w+0.5) * ms.size, (h+0.5) * ms.size), text=str(ms.bob[h][w][1]), font=('Arial', 16, 'bold'), fill=color_nber(ms.bob[h][w][1]), tags="number")
+                can.create_text(((w+0.5) * ms.size, (h+0.5) * ms.size), text=str(ms.bob[h][w][1]), font=('Arial', ms.size//2 - 5, 'bold'), fill=color_nber(ms.bob[h][w][1]), tags="number")
     can.tag_raise("grid")
 
 
 def lines():
-    """draw the grid lines on the canvas"""
-    can.delete("grid") # remove previous grid lines to avoid duplicates
+    """draw the grid lines on the canvas depending on ms.size and ms.width/ms.height"""
     
     # go through each line position and draw the lines
     for w in range(ms.width + 1): # vertical
@@ -497,7 +498,7 @@ def lines():
 
 
 def draw():
-    """draw the entire board including lines and content"""
+    """draw the entire board including lines and content of the cells"""
     can.delete("all")
     content()
     lines()
@@ -530,25 +531,19 @@ bomb_count = Label(sidebar, textvariable=bomb_var, bg="#181F1C", fg="white", fon
 bomb_count.pack(pady=5)
 
 
-# Canvas (right side, main game area)
-can = Canvas(main_frame, width=ms.width * ms.size, height=ms.height * ms.size, bg=ms.fill, highlightthickness=0)
-can.pack(side="left", fill="both", expand=True)
-
-can.bind("<Button-1>", first_dig)
-#can.bind("<Button-3>", put_flag)
-can.bind("<Return>", ms.set_colors)
-
-draw() #first start of the game
-
-
 
 def restart():
-    print(f"{ms.init_bomb=}")
-    global can
+    """restart is called when the restart button is pressed.
+    """
+    # print(f"{ms.init_bomb=}") # debug
+
+    global can # we need to call the global canvas so we use global
+
+    # destroy the canvas object to recreate a new one with the right size
     can.destroy()
     can = Canvas(main_frame, width=ms.width * ms.size, height=ms.height * ms.size, bg=ms.fill, highlightthickness=0)
     can.pack(side="left", fill="both", expand=True)
-    can.unbind_all("<Button-3>")
+    can.unbind("<Button-3>")
     can.bind("<Button-1>", first_dig) # rebinding the keys to restart the binding of first dig
     can.delete("all")
     #ms.set_colors(ms.theme + 1)
@@ -561,19 +556,30 @@ def restart():
 
 # Restart button
 restart_button = Button(sidebar, text="Restart", bg="#78A054", fg="white", font=("Arial", 11, "bold"), 
-                        command=restart, padx=10, bd=6)
-restart_button.pack(pady=10, padx=5, fill="x")
+                        command=restart, bd=6)
+restart_button.pack(pady=20, padx=8, fill="x")
 
-#difficulty button
+# Difficulty button
 difficulty_button = Button(sidebar, text="Difficulty", bg="#78A054", fg="white", font=("Arial", 11, "bold"), 
-                        command=choose_difficulty, padx=6, bd=6)
-difficulty_button.pack(pady=10, padx=5, fill="x")
+                        command=choose_difficulty, bd=6)
+difficulty_button.pack(pady=20, padx=8, fill="x")
 
-diff_var = IntVar(value=ms.difficulty) # Dynamic variable to track bomb count
-diff_count = Label(sidebar, textvariable=diff_var, bg="#181F1C", fg="white", font=("Arial", 20, "bold"))
-diff_count.pack(pady=5)
+# Difficulty label
+diff_name = StringVar(value="Beginner") # Dynamic variable to print current difficulty
+diff_label = Label(sidebar, textvariable=diff_name, bg="#181F1C", fg="white", font=("Arial", 16, "bold"))
+diff_label.pack()
+
+
         
+# Canvas (right side, main game area)
+can = Canvas(main_frame, width=ms.width * ms.size, height=ms.height * ms.size, bg=ms.fill, highlightthickness=0)
+can.pack(side="left", fill="both", expand=True)
 
+can.bind("<Button-1>", first_dig)
+#can.bind("<Button-3>", put_flag)
+can.bind("<Return>", ms.set_colors)
+
+draw() #first start of the game
 
 fen.mainloop()
 
