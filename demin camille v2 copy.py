@@ -56,8 +56,7 @@ class GameState: # we use a class to make cleaner variable management
         draw()
 
 
-ms = GameState() # creation of our class object
-ms.set_colors()
+ms = GameState() # creation of our class object
 
 
 
@@ -315,52 +314,7 @@ def adjacent_zero(cellY, cellX):
                     # if the cell dug has 0 bomb nearby, add it to the stack to check its neighbors later
                     if ms.bob[h_cell][w_cell][1]==0:
                         stack.append((w_cell, h_cell))
-
-
-        
-
-"""
-def adjacent_zero():
-    adjacent_zero digs all cells that have a no-bomb-cell nearby.
-
-    count=1
-    while count>0: # continue until no more cells are dug in a full loop (c=0)
-        count=0
-        to_dig=[]
-
-        for h in range(ms.height):
-            for w in range(ms.width):
-
-                # only consider dug cells with 0 bomb nearby
-                if ms.bob[h][w][1] != 0 or ms.bob[h][w][0] != 1:
-                    continue
-
-                # initiating variables storing the obstruction in either of those direction (0:no obstruction, 1:obstruction)
-                right=0
-                left=0
-                up=0
-                down=0
-        
-                if w==0:
-                    left=1
-                elif w==ms.width-1:
-                    right=1
-                if h==0:
-                    up=1
-                elif h==ms.height-1:
-                    down=1
-        
-                # using a nested loop we can go trough every square within a radius of one (that are in index range) to verify if there is a cell with nothing inside near
-                for h_cell in range((h-1)+up,(h+1)-down + 1):
-                    for w_cell in range((w-1)+left,(w+1)-right + 1):
-                        if ms.bob[h_cell][w_cell]==[1,0]:
-                            to_dig.append((w_cell, h_cell))
-                            count+=1
-                    
-        set(to_dig) # remove duplicates
-        for cell in to_dig:
-            dig(cell[0], cell[1])
-"""
+
 
 
 def dig(cellX, cellY):
