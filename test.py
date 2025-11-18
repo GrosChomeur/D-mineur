@@ -169,9 +169,27 @@ def nb_bomb():
             # (-1: a bomb, 0: no bomb, 1:one bomb nearby, 2:..)
             ms.bob[h][w][1]= nb_bomb
 
+def compute_cell_size():
+    """Set ms.size so the game canvas (ms.width*ms.size x ms.height*ms.size) will not exceed screen size.
+    Call this when difficulty changes."""
     
+    # gives the screen proportions
+    screen_w = 600
+    screen_h = 800
 
+    # min and max cell size to avoid too small or too big cells
+    min_size = 40
+    max_size = 100
 
+    # available area for the canva (not more than a third of the screen)
+    avail_w = int(screen_w) / 2
+    avail_h = int(screen_h) / 2
+
+    # compute max cell size that fits in available area
+    size_w = avail_w // ms.width
+    size_h = avail_h // ms.height
+    ms.size = int(max(min(size_w, size_h, max_size), min_size))
+    
 
 
 
@@ -210,6 +228,9 @@ assert ms.difficulty == 0, "The starting difficulty is not beginner"
 choose_difficulty()
 assert ms.difficulty == 1, "The difficulty was not changed to 1"
 print("correct difficulties")
+choose_difficulty()
+choose_difficulty()
+
 
 create([0,0])
 assert ms.bob[0][0][1] != -1, "The first cell clicked is a bomb"
@@ -222,3 +243,8 @@ for h in range(ms.height):
             c+=1
 assert c==ms.init_bomb, f"There is {c} bombs in the grid, the correct number for our current difficulty ({ms.difficulty}) was {ms.init_bomb}"
 print("right number of bombs in grid")
+
+compute_cell_size()
+assert ms.size >=40 and ms.size<=140
+
+
